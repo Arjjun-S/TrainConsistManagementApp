@@ -50,6 +50,7 @@ public class TrainConsistMgmnt {
         bogies.add("BG101");
         bogies.add("BG102");
 
+
         System.out.println("Bogie IDs After Insertion: ");
         System.out.println(bogies);
 
@@ -80,5 +81,25 @@ public class TrainConsistMgmnt {
         System.out.println(trainConsist);
 
         System.out.println("\nOrdered consist operations completed... (UC4)");
+
+        System.out.println("===============================================");
+        System.out.println("    UC5: Preserve Insertion Order of Bogies    ");
+        System.out.println("===============================================");
+
+        Set<String> formation = new LinkedHashSet<>();
+        formation.add("Engine");
+        formation.add("Sleeper");
+        formation.add("Cargo");
+        formation.add("Guard");
+        formation.add("Guard");
+        formation.add("Cargo");
+
+        System.out.println("Final Train Formation:");
+        System.out.println(formation);
+
+        System.out.println("\nNote:\nLinkedHashSet preserves the insertion order and removes duplicates automatically.\n");
+        System.out.println("Formation setup completed... (UC5)");
+
+
     }
 }
