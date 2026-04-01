@@ -1,75 +1,52 @@
 package com.railway;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.*;
 
 public class TrainConsistMgmntTest {
-    private List<TrainConsistMgmnt.Bogie> getMockBogies() {
-        return new ArrayList<>(Arrays.asList(
-                new TrainConsistMgmnt.Bogie("Sleeper", 72),
-                new TrainConsistMgmnt.Bogie("AC Chair", 56),
-                new TrainConsistMgmnt.Bogie("First Class", 24),
-                new TrainConsistMgmnt.Bogie("Sleeper", 70)
-        ));
-    }
     @Test
-    void testReduce_TotalSeatCalculation() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        int total = bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-        assertEquals(222, total);
+    void testRegex_ValidTrainID() {
+        assertTrue(TrainConsistMgmnt.validateTrainId("TRN-1234"));
     }
+
     @Test
-    void testReduce_MultipleBogiesAggregation() {
-        List<TrainConsistMgmnt.Bogie> bogies = Arrays.asList(
-                new TrainConsistMgmnt.Bogie("General", 90),
-                new TrainConsistMgmnt.Bogie("General", 90)
-        );
-        int total = bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-        assertEquals(180, total);
+    void testRegex_InvalidTrainIDFormat() {
+        assertFalse(TrainConsistMgmnt.validateTrainId("TRAIN12"));
+        assertFalse(TrainConsistMgmnt.validateTrainId("TRN12A"));
+        assertFalse(TrainConsistMgmnt.validateTrainId("1234-TRN"));
     }
+
     @Test
-    void testReduce_SingleBogieCapacity() {
-        List<TrainConsistMgmnt.Bogie> bogies = Collections.singletonList(
-                new TrainConsistMgmnt.Bogie("Sleeper", 72)
-        );
-        int total = bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-        assertEquals(72, total);
+    void testRegex_ValidCargoCode() {
+        assertTrue(TrainConsistMgmnt.validateCargoCode("PET-AB"));
     }
+
     @Test
-    void testReduce_EmptyBogieList() {
-        List<TrainConsistMgmnt.Bogie> bogies = new ArrayList<>();
-        int total = bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-        assertEquals(0, total);
+    void testRegex_InvalidCargoCodeFormat() {
+        assertFalse(TrainConsistMgmnt.validateCargoCode("PET123"));
+        assertFalse(TrainConsistMgmnt.validateCargoCode("AB-PET"));
     }
+
     @Test
-    void testReduce_CorrectCapacityExtraction() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        // Verifying that the first element mapped is indeed 72
-        Optional<Integer> firstCapacity = bogies.stream()
-                .map(b -> b.capacity)
-                .findFirst();
-        assertEquals(72, firstCapacity.get());
+    void testRegex_TrainIDDigitLengthValidation() {
+        assertFalse(TrainConsistMgmnt.validateTrainId("TRN-123"));
+        assertFalse(TrainConsistMgmnt.validateTrainId("TRN-12345"));
     }
+
     @Test
-    void testReduce_AllBogiesIncluded() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        long count = bogies.stream().map(b -> b.capacity).count();
-        assertEquals(bogies.size(), count);
+    void testRegex_CargoCodeUppercaseValidation() {
+        assertFalse(TrainConsistMgmnt.validateCargoCode("PET-ab"));
+        assertFalse(TrainConsistMgmnt.validateCargoCode("pet-AB"));
     }
+
     @Test
-    void testReduce_OriginalListUnchanged() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        int sizeBefore = bogies.size();
-        bogies.stream().map(b -> b.capacity).reduce(0, Integer::sum);
-        assertEquals(sizeBefore, bogies.size(), "Aggregation must not modify the original list");
-        assertEquals("Sleeper", bogies.get(0).name);
+    void testRegex_EmptyInputHandling() {
+        assertFalse(TrainConsistMgmnt.validateTrainId(""));
+        assertFalse(TrainConsistMgmnt.validateCargoCode(""));
+    }
+
+    @Test
+    void testRegex_ExactPatternMatch() {
+        assertFalse(TrainConsistMgmnt.validateTrainId("TRN-1234-EXTRA"));
+        assertFalse(TrainConsistMgmnt.validateCargoCode("PET-ABC"));
     }
 }
