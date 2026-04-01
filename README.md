@@ -1,3 +1,3 @@
 # Train Consist Management App
-### version 1.9
-### UC9: Group Bogies by Type (Collectors.groupingBy)
+### version 1.10
+### UC10: Count Total Seats in Train (reduce)
