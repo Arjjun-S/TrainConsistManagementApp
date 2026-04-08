@@ -6,88 +6,75 @@ import java.util.stream.Collectors;
 
 public class TrainConsistMgmntTest {
 
+    // Helper to generate a test list
     private List<TrainConsistMgmnt.Bogie> getMockBogies() {
         return new ArrayList<>(Arrays.asList(
                 new TrainConsistMgmnt.Bogie("Sleeper", 72),
-                new TrainConsistMgmnt.Bogie("General", 90),
+                new TrainConsistMgmnt.Bogie("Sleeper", 72),
                 new TrainConsistMgmnt.Bogie("AC Chair", 56),
-                new TrainConsistMgmnt.Bogie("First Class", 24)
+                new TrainConsistMgmnt.Bogie("General", 90)
         ));
     }
 
     @Test
-    void testFilter_CapacityGreaterThanThreshold() {
+    void testGrouping_BogiesGroupedByType() {
         List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        List<TrainConsistMgmnt.Bogie> result = bogies.stream()
-                .filter(b -> b.capacity > 70)
-                .collect(Collectors.toList());
-        assertEquals(2, result.size());
-        assertTrue(result.stream().allMatch(b -> b.capacity > 70));
+        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
+                .collect(Collectors.groupingBy(b -> b.name));
+
+        assertTrue(grouped.containsKey("Sleeper"));
+        assertTrue(grouped.containsKey("AC Chair"));
+        assertTrue(grouped.containsKey("General"));
     }
 
     @Test
-    void testFilter_CapacityEqualToThreshold() {
+    void testGrouping_MultipleBogiesInSameGroup() {
         List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        // Filtering > 72 should exclude the Sleeper (72)
-        List<TrainConsistMgmnt.Bogie> result = bogies.stream()
-                .filter(b -> b.capacity > 72)
-                .collect(Collectors.toList());
-        assertFalse(result.stream().anyMatch(b -> b.capacity == 72));
+        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
+                .collect(Collectors.groupingBy(b -> b.name));
+
+        assertEquals(2, grouped.get("Sleeper").size(), "Sleeper group should have 2 bogies");
     }
 
     @Test
-    void testFilter_CapacityLessThanThreshold() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        List<TrainConsistMgmnt.Bogie> result = bogies.stream()
-                .filter(b -> b.capacity > 100)
-                .collect(Collectors.toList());
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    void testFilter_MultipleBogiesMatching() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        List<TrainConsistMgmnt.Bogie> result = bogies.stream()
-                .filter(b -> b.capacity > 50)
-                .collect(Collectors.toList());
-        assertEquals(3, result.size()); // Sleeper, General, AC Chair
-    }
-
-    @Test
-    void testFilter_NoBogiesMatching() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        List<TrainConsistMgmnt.Bogie> result = bogies.stream()
-                .filter(b -> b.capacity > 200)
-                .collect(Collectors.toList());
-        assertEquals(0, result.size());
-    }
-
-    @Test
-    void testFilter_AllBogiesMatching() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        List<TrainConsistMgmnt.Bogie> result = bogies.stream()
-                .filter(b -> b.capacity > 10)
-                .collect(Collectors.toList());
-        assertEquals(bogies.size(), result.size());
-    }
-
-    @Test
-    void testFilter_EmptyBogieList() {
+    void testGrouping_EmptyBogieList() {
         List<TrainConsistMgmnt.Bogie> bogies = new ArrayList<>();
-        List<TrainConsistMgmnt.Bogie> result = bogies.stream()
-                .filter(b -> b.capacity > 50)
-                .collect(Collectors.toList());
-        assertTrue(result.isEmpty());
+        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
+                .collect(Collectors.groupingBy(b -> b.name));
+
+        assertTrue(grouped.isEmpty());
     }
 
     @Test
-    void testFilter_OriginalListUnchanged() {
+    void testGrouping_MapContainsCorrectKeys() {
+        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
+        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
+                .collect(Collectors.groupingBy(b -> b.name));
+
+        Set<String> expectedKeys = new HashSet<>(Arrays.asList("Sleeper", "AC Chair", "General"));
+        assertEquals(expectedKeys, grouped.keySet());
+    }
+
+    @Test
+    void testGrouping_OriginalListUnchanged() {
         List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
         int originalSize = bogies.size();
 
-        bogies.stream().filter(b -> b.capacity > 60).collect(Collectors.toList());
+        bogies.stream().collect(Collectors.groupingBy(b -> b.name));
 
-        assertEquals(originalSize, bogies.size(), "Original list size should not change");
-        assertEquals("Sleeper", bogies.get(0).name);
+        assertEquals(originalSize, bogies.size(), "Original list must remain unchanged");
+    }
+
+    @Test
+    void testGrouping_SingleBogieCategory() {
+        List<TrainConsistMgmnt.Bogie> bogies = Arrays.asList(
+                new TrainConsistMgmnt.Bogie("Sleeper", 72),
+                new TrainConsistMgmnt.Bogie("Sleeper", 72)
+        );
+        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
+                .collect(Collectors.groupingBy(b -> b.name));
+
+        assertEquals(1, grouped.size());
+        assertTrue(grouped.containsKey("Sleeper"));
     }
 }
