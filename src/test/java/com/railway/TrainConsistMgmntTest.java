@@ -2,79 +2,74 @@ package com.railway;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class TrainConsistMgmntTest {
-
-    // Helper to generate a test list
     private List<TrainConsistMgmnt.Bogie> getMockBogies() {
         return new ArrayList<>(Arrays.asList(
                 new TrainConsistMgmnt.Bogie("Sleeper", 72),
-                new TrainConsistMgmnt.Bogie("Sleeper", 72),
                 new TrainConsistMgmnt.Bogie("AC Chair", 56),
-                new TrainConsistMgmnt.Bogie("General", 90)
+                new TrainConsistMgmnt.Bogie("First Class", 24),
+                new TrainConsistMgmnt.Bogie("Sleeper", 70)
         ));
     }
-
     @Test
-    void testGrouping_BogiesGroupedByType() {
+    void testReduce_TotalSeatCalculation() {
         List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
-                .collect(Collectors.groupingBy(b -> b.name));
-
-        assertTrue(grouped.containsKey("Sleeper"));
-        assertTrue(grouped.containsKey("AC Chair"));
-        assertTrue(grouped.containsKey("General"));
+        int total = bogies.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
+        assertEquals(222, total);
     }
-
     @Test
-    void testGrouping_MultipleBogiesInSameGroup() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
-                .collect(Collectors.groupingBy(b -> b.name));
-
-        assertEquals(2, grouped.get("Sleeper").size(), "Sleeper group should have 2 bogies");
-    }
-
-    @Test
-    void testGrouping_EmptyBogieList() {
-        List<TrainConsistMgmnt.Bogie> bogies = new ArrayList<>();
-        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
-                .collect(Collectors.groupingBy(b -> b.name));
-
-        assertTrue(grouped.isEmpty());
-    }
-
-    @Test
-    void testGrouping_MapContainsCorrectKeys() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
-                .collect(Collectors.groupingBy(b -> b.name));
-
-        Set<String> expectedKeys = new HashSet<>(Arrays.asList("Sleeper", "AC Chair", "General"));
-        assertEquals(expectedKeys, grouped.keySet());
-    }
-
-    @Test
-    void testGrouping_OriginalListUnchanged() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        int originalSize = bogies.size();
-
-        bogies.stream().collect(Collectors.groupingBy(b -> b.name));
-
-        assertEquals(originalSize, bogies.size(), "Original list must remain unchanged");
-    }
-
-    @Test
-    void testGrouping_SingleBogieCategory() {
+    void testReduce_MultipleBogiesAggregation() {
         List<TrainConsistMgmnt.Bogie> bogies = Arrays.asList(
-                new TrainConsistMgmnt.Bogie("Sleeper", 72),
+                new TrainConsistMgmnt.Bogie("General", 90),
+                new TrainConsistMgmnt.Bogie("General", 90)
+        );
+        int total = bogies.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
+        assertEquals(180, total);
+    }
+    @Test
+    void testReduce_SingleBogieCapacity() {
+        List<TrainConsistMgmnt.Bogie> bogies = Collections.singletonList(
                 new TrainConsistMgmnt.Bogie("Sleeper", 72)
         );
-        Map<String, List<TrainConsistMgmnt.Bogie>> grouped = bogies.stream()
-                .collect(Collectors.groupingBy(b -> b.name));
-
-        assertEquals(1, grouped.size());
-        assertTrue(grouped.containsKey("Sleeper"));
+        int total = bogies.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
+        assertEquals(72, total);
+    }
+    @Test
+    void testReduce_EmptyBogieList() {
+        List<TrainConsistMgmnt.Bogie> bogies = new ArrayList<>();
+        int total = bogies.stream()
+                .map(b -> b.capacity)
+                .reduce(0, Integer::sum);
+        assertEquals(0, total);
+    }
+    @Test
+    void testReduce_CorrectCapacityExtraction() {
+        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
+        // Verifying that the first element mapped is indeed 72
+        Optional<Integer> firstCapacity = bogies.stream()
+                .map(b -> b.capacity)
+                .findFirst();
+        assertEquals(72, firstCapacity.get());
+    }
+    @Test
+    void testReduce_AllBogiesIncluded() {
+        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
+        long count = bogies.stream().map(b -> b.capacity).count();
+        assertEquals(bogies.size(), count);
+    }
+    @Test
+    void testReduce_OriginalListUnchanged() {
+        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
+        int sizeBefore = bogies.size();
+        bogies.stream().map(b -> b.capacity).reduce(0, Integer::sum);
+        assertEquals(sizeBefore, bogies.size(), "Aggregation must not modify the original list");
+        assertEquals("Sleeper", bogies.get(0).name);
     }
 }
