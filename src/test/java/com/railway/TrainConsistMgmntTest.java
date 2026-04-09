@@ -1,42 +1,44 @@
 package com.railway;
 
 import org.junit.jupiter.api.Test;
+import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TrainConsistMgmntTest {
 
     @Test
-    void testSort_BasicSorting() {
-        int[] capacities = {72, 56, 24, 70, 60};
-        TrainConsistMgmnt.bubbleSort(capacities);
-        assertArrayEquals(new int[]{24, 56, 60, 70, 72}, capacities);
+    void testSort_BasicAlphabeticalSorting() {
+        String[] bogieNames = {"Sleeper", "AC Chair", "First Class", "General", "Luxury"};
+        Arrays.sort(bogieNames);
+        String[] expected = {"AC Chair", "First Class", "General", "Luxury", "Sleeper"};
+        assertArrayEquals(expected, bogieNames);
     }
-
+    @Test
+    void testSort_UnsortedInput() {
+        String[] bogieNames = {"Luxury", "General", "Sleeper", "AC Chair"};
+        Arrays.sort(bogieNames);
+        String[] expected = {"AC Chair", "General", "Luxury", "Sleeper"};
+        assertArrayEquals(expected, bogieNames);
+    }
     @Test
     void testSort_AlreadySortedArray() {
-        int[] capacities = {24, 56, 60, 70, 72};
-        TrainConsistMgmnt.bubbleSort(capacities);
-        assertArrayEquals(new int[]{24, 56, 60, 70, 72}, capacities);
+        String[] bogieNames = {"AC Chair", "First Class", "General"};
+        Arrays.sort(bogieNames);
+        String[] expected = {"AC Chair", "First Class", "General"};
+        assertArrayEquals(expected, bogieNames);
     }
-
     @Test
-    void testSort_DuplicateValues() {
-        int[] capacities = {72, 56, 56, 24};
-        TrainConsistMgmnt.bubbleSort(capacities);
-        assertArrayEquals(new int[]{24, 56, 56, 72}, capacities);
+    void testSort_DuplicateBogieNames() {
+        String[] bogieNames = {"Sleeper", "AC Chair", "Sleeper", "General"};
+        Arrays.sort(bogieNames);
+        String[] expected = {"AC Chair", "General", "Sleeper", "Sleeper"};
+        assertArrayEquals(expected, bogieNames);
     }
-
     @Test
     void testSort_SingleElementArray() {
-        int[] capacities = {50};
-        TrainConsistMgmnt.bubbleSort(capacities);
-        assertArrayEquals(new int[]{50}, capacities);
-    }
-
-    @Test
-    void testSort_AllEqualValues() {
-        int[] capacities = {40, 40, 40};
-        TrainConsistMgmnt.bubbleSort(capacities);
-        assertArrayEquals(new int[]{40, 40, 40}, capacities);
+        String[] bogieNames = {"Sleeper"};
+        Arrays.sort(bogieNames);
+        String[] expected = {"Sleeper"};
+        assertArrayEquals(expected, bogieNames);
     }
 }
