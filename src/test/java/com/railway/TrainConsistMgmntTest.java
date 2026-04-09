@@ -1,75 +1,35 @@
 package com.railway;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.*;
 
 public class TrainConsistMgmntTest {
-    private List<TrainConsistMgmnt.Bogie> getMockBogies() {
-        return new ArrayList<>(Arrays.asList(
-                new TrainConsistMgmnt.Bogie("Sleeper", 72),
-                new TrainConsistMgmnt.Bogie("AC Chair", 56),
-                new TrainConsistMgmnt.Bogie("First Class", 24),
-                new TrainConsistMgmnt.Bogie("Sleeper", 70)
-        ));
-    }
+
     @Test
-    void testReduce_TotalSeatCalculation() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        int total = bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-        assertEquals(222, total);
+    void testCargo_SafeAssignment() {
+        TrainConsistMgmnt.GoodsBogie bogie = new TrainConsistMgmnt.GoodsBogie("Cylindrical");
+        bogie.assignCargo("Petroleum");
+        assertEquals("Petroleum", bogie.cargo);
     }
+
     @Test
-    void testReduce_MultipleBogiesAggregation() {
-        List<TrainConsistMgmnt.Bogie> bogies = Arrays.asList(
-                new TrainConsistMgmnt.Bogie("General", 90),
-                new TrainConsistMgmnt.Bogie("General", 90)
-        );
-        int total = bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-        assertEquals(180, total);
+    void testCargo_UnsafeAssignmentHandled() {
+        TrainConsistMgmnt.GoodsBogie bogie = new TrainConsistMgmnt.GoodsBogie("Rectangular");
+        assertDoesNotThrow(() -> bogie.assignCargo("Petroleum"));
     }
+
     @Test
-    void testReduce_SingleBogieCapacity() {
-        List<TrainConsistMgmnt.Bogie> bogies = Collections.singletonList(
-                new TrainConsistMgmnt.Bogie("Sleeper", 72)
-        );
-        int total = bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-        assertEquals(72, total);
+    void testCargo_CargoNotAssignedAfterFailure() {
+        TrainConsistMgmnt.GoodsBogie bogie = new TrainConsistMgmnt.GoodsBogie("Rectangular");
+        bogie.assignCargo("Petroleum");
+        assertEquals("None", bogie.cargo, "Cargo should remain 'None' on failure");
     }
+
     @Test
-    void testReduce_EmptyBogieList() {
-        List<TrainConsistMgmnt.Bogie> bogies = new ArrayList<>();
-        int total = bogies.stream()
-                .map(b -> b.capacity)
-                .reduce(0, Integer::sum);
-        assertEquals(0, total);
-    }
-    @Test
-    void testReduce_CorrectCapacityExtraction() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        // Verifying that the first element mapped is indeed 72
-        Optional<Integer> firstCapacity = bogies.stream()
-                .map(b -> b.capacity)
-                .findFirst();
-        assertEquals(72, firstCapacity.get());
-    }
-    @Test
-    void testReduce_AllBogiesIncluded() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        long count = bogies.stream().map(b -> b.capacity).count();
-        assertEquals(bogies.size(), count);
-    }
-    @Test
-    void testReduce_OriginalListUnchanged() {
-        List<TrainConsistMgmnt.Bogie> bogies = getMockBogies();
-        int sizeBefore = bogies.size();
-        bogies.stream().map(b -> b.capacity).reduce(0, Integer::sum);
-        assertEquals(sizeBefore, bogies.size(), "Aggregation must not modify the original list");
-        assertEquals("Sleeper", bogies.get(0).name);
+    void testCargo_ProgramContinuesAfterException() {
+        TrainConsistMgmnt.GoodsBogie bogie = new TrainConsistMgmnt.GoodsBogie("Rectangular");
+        bogie.assignCargo("Petroleum");
+        bogie.assignCargo("Grain");
+        assertEquals("Grain", bogie.cargo, "Program should continue to process valid assignments");
     }
 }
