@@ -1,3 +1,3 @@
 # Train Consist Management App
-### version 1.10
-### UC10: Count Total Seats in Train (reduce)
+### version 1.11
+### UC11: Validate Train ID & Cargo Codes (Regex)
