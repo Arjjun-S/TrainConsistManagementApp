@@ -23,24 +23,42 @@ public class TrainConsistMgmnt {
             return type + " (Seats: " + capacity + ")";
         }
     }
+    static class CargoSafetyException extends RuntimeException {
+        public CargoSafetyException(String message) {
+            super(message);
+        }
+    }
+    static class GoodsBogie {
+        String shape;
+        String cargo = "None";
+
+        GoodsBogie(String shape) {
+            this.shape = shape;
+        }
+        void assignCargo(String cargo) {
+            try {
+                if (this.shape.equalsIgnoreCase("Rectangular") && cargo.equalsIgnoreCase("Petroleum")) {
+                    throw new CargoSafetyException("Unsafe cargo assignment!");
+                }
+                this.cargo = cargo;
+                System.out.println("Cargo assigned successfully -> " + cargo);
+            } catch (CargoSafetyException e) {
+                System.err.println("Error: " + e.getMessage());
+            } finally {
+                System.out.println("Cargo validation completed for " + shape + " bogie");
+            }
+        }
+    }
 
     public static void main(String[] args) {
         System.out.println("=========================================");
-        System.out.println(" UC14 - Handle Invalid Bogie Capacity ");
+        System.out.println(" UC15 - Safe Cargo Assignment (try-catch-finally) ");
         System.out.println("=========================================");
-
-        try {
-            System.out.println("Attempting to create a valid bogie...");
-            PassengerBogie s1 = new PassengerBogie("Sleeper", 72);
-            System.out.println("Created: " + s1);
-
-            System.out.println("\nAttempting to create an invalid bogie (Capacity: -10)...");
-            PassengerBogie s2 = new PassengerBogie("AC Chair", -10);
-
-        } catch (InvalidCapacityException e) {
-            System.err.println("Caught Exception: " + e.getMessage());
-        }
-
-        System.out.println("\nUC14 capacity validation completed ...");
+        GoodsBogie g1 = new GoodsBogie("Cylindrical");
+        g1.assignCargo("Petroleum");
+        System.out.println();
+        GoodsBogie g2 = new GoodsBogie("Rectangular");
+        g2.assignCargo("Petroleum");
+        System.out.println("\nUC15 runtime handling completed successfully...");
     }
 }
